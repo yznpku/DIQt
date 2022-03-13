@@ -7,13 +7,19 @@
 
 #include <QtCore>
 
+#if QT_GUI_LIB
+#include <QtGui>
+#endif
+
+#if QT_WIDGETS_LIB
+#include <QtWidgets>
+#endif
+
 #if QT_QUICK_LIB
 #include <QtQuick>
 #endif
 
-#include "DIQt_global.h"
-
-class DIQT_EXPORT DIQtType {
+class DIQtType {
     int id;
     const QMetaObject* metaObject;
 
