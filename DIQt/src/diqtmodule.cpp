@@ -2,6 +2,8 @@
  * Copyright (c) 2019 Zhining Yang. <yzn20080@gmail.com>
  */
 
+#include "diqtmodule_p.h"
+
 #include "diqtinjector.h"
 #include <DIQt>
 
@@ -59,7 +61,7 @@ void DIQt::inject(QObject* node)
     }
 
     DIQtModule* module = root->property("DIQt_module").value<DIQtModule*>();
-    module->injectRecursive(node);
+    module->d->injectRecursive(node);
 }
 
 void DIQt::project(QObject* source, QObject* destination)
@@ -75,8 +77,8 @@ void DIQt::project(QObject* source, QObject* destination)
 }
 
 DIQtModule::DIQtModule()
+    : d(new DIQtModulePrivate(this))
 {
-    this->rootInjector = 0;
 #ifdef QT_QUICK_LIB
     qmlRegisterType<DIQtInjector>("DIQt", 1, 0, "DIQtInjector");
 #endif
@@ -84,25 +86,27 @@ DIQtModule::DIQtModule()
 
 DIQtModule::~DIQtModule()
 {
-    if (this->rootInjector) {
-        delete this->rootInjector;
+    if (d->rootInjector) {
+        delete d->rootInjector;
     }
+
+    delete d;
 }
 
 void DIQtModule::bootstrap(QObject* root)
 {
     root->setProperty("DIQt_module", QVariant::fromValue<DIQtModule*>(this));
 
-    if (!this->rootInjector) {
-        this->createRootInjector();
+    if (!d->rootInjector) {
+        d->createRootInjector();
     }
-    this->injectRecursive(root);
+    d->injectRecursive(root);
 }
 
 void DIQtModule::registerType(const DIQtType& type)
 {
     DIQtType::typeById[type.getId()] = type;
-    this->registeredTypes.append(type);
+    d->registeredTypes.append(type);
 }
 
 void DIQtModule::provideWithReadyObject(const DIQtType& provider, const DIQtType& type, QObject* object)
@@ -112,7 +116,7 @@ void DIQtModule::provideWithReadyObject(const DIQtType& provider, const DIQtType
     entry.type = type;
     entry.configuration = DIQtProvideEntry::ReadyObjectProvider;
     entry.readyObject = object;
-    this->providers.append(entry);
+    d->providers.append(entry);
 }
 
 void DIQtModule::provideWithDefaultConstructor(const DIQtType& provider, const DIQtType& type)
@@ -139,10 +143,15 @@ void DIQtModule::provideWithDefaultConstructor(const DIQtType& provider, const D
     }
 #endif
 
-    this->providers.append(entry);
+    d->providers.append(entry);
 }
 
-void DIQtModule::injectAll(QObject* node)
+DIQtModulePrivate::DIQtModulePrivate(DIQtModule* q)
+{
+    this->q = q;
+}
+
+void DIQtModulePrivate::injectAll(QObject* node)
 {
     if (node->dynamicPropertyNames().contains("DIQt_injected") && node->property("DIQt_injected").toBool()) {
         return;
@@ -181,7 +190,7 @@ void DIQtModule::injectAll(QObject* node)
     }
 }
 
-void DIQtModule::injectRecursive(QObject* root)
+void DIQtModulePrivate::injectRecursive(QObject* root)
 {
     // inject this node
     this->injectAll(root);
@@ -207,7 +216,7 @@ void DIQtModule::injectRecursive(QObject* root)
     }
 }
 
-void DIQtModule::injectRecursive(QGraphicsItem* root)
+void DIQtModulePrivate::injectRecursive(QGraphicsItem* root)
 {
     // inject this node if it is QObject
     if (QGraphicsObject* object = root->toGraphicsObject()) {
@@ -229,7 +238,7 @@ void DIQtModule::injectRecursive(QGraphicsItem* root)
     }
 }
 
-void DIQtModule::createInjector(QObject* node)
+void DIQtModulePrivate::createInjector(QObject* node)
 {
     QList<DIQtProvideEntry> nodeProviders;
     for (QList<DIQtProvideEntry>::const_iterator i = this->providers.constBegin(); i != this->providers.constEnd(); i++) {
@@ -246,10 +255,10 @@ void DIQtModule::createInjector(QObject* node)
     }
 }
 
-void DIQtModule::createRootInjector()
+void DIQtModulePrivate::createRootInjector()
 {
     this->rootInjector = new DIQtInjector();
-    this->rootInjector->setProperty("DIQt_module", QVariant::fromValue<DIQtModule*>(this));
+    this->rootInjector->setProperty("DIQt_module", QVariant::fromValue<DIQtModule*>(q));
 
     QList<DIQtProvideEntry> rootProviders;
     for (QList<DIQtProvideEntry>::const_iterator i = this->providers.constBegin(); i != this->providers.constEnd(); i++) {
@@ -262,7 +271,7 @@ void DIQtModule::createRootInjector()
     this->rootInjector->initProviders(rootProviders);
 }
 
-void DIQtModule::injectNode(QObject* node, DIQtInjector* injector, QList<QPair<DIQtType, QMetaMethod>>& methods, QList<QPair<DIQtType, QMetaProperty>>& properties)
+void DIQtModulePrivate::injectNode(QObject* node, DIQtInjector* injector, QList<QPair<DIQtType, QMetaMethod>>& methods, QList<QPair<DIQtType, QMetaProperty>>& properties)
 {
     for (QList<QPair<DIQtType, QMetaMethod>>::iterator i = methods.begin(); i != methods.end();) {
         const DIQtType& type = i->first;
@@ -285,7 +294,7 @@ void DIQtModule::injectNode(QObject* node, DIQtInjector* injector, QList<QPair<D
     }
 }
 
-QList<QPair<DIQtType, QMetaMethod>> DIQtModule::collectConsumerMethods(QObject* node)
+QList<QPair<DIQtType, QMetaMethod>> DIQtModulePrivate::collectConsumerMethods(QObject* node)
 {
     QList<QPair<DIQtType, QMetaMethod>> consumerMethods;
     const QMetaObject* metaObject = node->metaObject();
@@ -307,7 +316,7 @@ QList<QPair<DIQtType, QMetaMethod>> DIQtModule::collectConsumerMethods(QObject* 
     return consumerMethods;
 }
 
-QList<QPair<DIQtType, QMetaProperty>> DIQtModule::collectConsumerProperties(QObject* node)
+QList<QPair<DIQtType, QMetaProperty>> DIQtModulePrivate::collectConsumerProperties(QObject* node)
 {
     QList<QPair<DIQtType, QMetaProperty>> consumerProperties;
     const QMetaObject* metaObject = node->metaObject();
@@ -329,7 +338,7 @@ QList<QPair<DIQtType, QMetaProperty>> DIQtModule::collectConsumerProperties(QObj
     return consumerProperties;
 }
 
-QList<QMetaMethod> DIQtModule::collectInitMethods(QObject* node)
+QList<QMetaMethod> DIQtModulePrivate::collectInitMethods(QObject* node)
 {
     QList<QMetaMethod> initMethods;
     const QMetaObject* metaObject = node->metaObject();
@@ -351,7 +360,7 @@ QList<QMetaMethod> DIQtModule::collectInitMethods(QObject* node)
     return initMethods;
 }
 
-bool DIQtModule::testIncompleteMethods(QObject* node, const QList<QPair<DIQtType, QMetaMethod>>& methods)
+bool DIQtModulePrivate::testIncompleteMethods(QObject* node, const QList<QPair<DIQtType, QMetaMethod>>& methods)
 {
     if (methods.empty()) {
         return true;
@@ -371,7 +380,7 @@ bool DIQtModule::testIncompleteMethods(QObject* node, const QList<QPair<DIQtType
     return false;
 }
 
-bool DIQtModule::testIncompleteProperties(QObject* node, const QList<QPair<DIQtType, QMetaProperty>>& properties)
+bool DIQtModulePrivate::testIncompleteProperties(QObject* node, const QList<QPair<DIQtType, QMetaProperty>>& properties)
 {
     if (properties.empty()) {
         return true;

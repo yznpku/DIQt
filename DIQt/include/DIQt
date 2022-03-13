@@ -3,7 +3,6 @@
  */
 
 #include "../src/diqtmodule.h"
-#include "../src/diqttype.h"
 
 #ifndef Q_MOC_RUN
 #define DI_MODULE

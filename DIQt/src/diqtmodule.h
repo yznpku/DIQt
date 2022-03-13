@@ -25,6 +25,7 @@ void inject(QObject* node);
 void project(QObject* source, QObject* destination);
 }
 
+class DIQtModulePrivate;
 class DIQtModule {
 public:
     DIQtModule();
@@ -56,33 +57,14 @@ public:
         this->provideWithDefaultConstructor(DIQtType::makeType<TProvider>(), DIQtType::makeType<T>());
     }
 
-protected:
-    QList<DIQtType> registeredTypes;
-    QList<DIQtProvideEntry> providers;
-
-    DIQtInjector* rootInjector;
-
 private:
-    friend void DIQt::inject(QObject* node);
-
     void registerType(const DIQtType& type);
     void provideWithReadyObject(const DIQtType& provider, const DIQtType& type, QObject* object);
     void provideWithDefaultConstructor(const DIQtType& provider, const DIQtType& type);
 
-    void injectAll(QObject* node);
-    void injectRecursive(QObject* root);
-    void injectRecursive(QGraphicsItem* root);
-    void createInjector(QObject* node);
-    void createRootInjector();
-
-    void injectNode(QObject* node, DIQtInjector* injector, QList<QPair<DIQtType, QMetaMethod>>& methods, QList<QPair<DIQtType, QMetaProperty>>& properties);
-
-    QList<QPair<DIQtType, QMetaMethod>> collectConsumerMethods(QObject* node);
-    QList<QPair<DIQtType, QMetaProperty>> collectConsumerProperties(QObject* node);
-    QList<QMetaMethod> collectInitMethods(QObject* node);
-
-    bool testIncompleteMethods(QObject* node, const QList<QPair<DIQtType, QMetaMethod>>& methods);
-    bool testIncompleteProperties(QObject* node, const QList<QPair<DIQtType, QMetaProperty>>& properties);
+private:
+    DIQtModulePrivate* d;
+    friend void DIQt::inject(QObject* node);
 };
 
 Q_DECLARE_METATYPE(DIQtModule*)
