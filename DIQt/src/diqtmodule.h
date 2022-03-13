@@ -15,16 +15,11 @@
 #include <QtWidgets>
 #endif
 
+#include "diqt.h"
 #include "diqtprovideentry.h"
 #include "diqttype.h"
 
 class DIQtInjector;
-
-namespace DIQt {
-void inject(QObject* node);
-void project(QObject* source, QObject* destination);
-}
-
 class DIQtModulePrivate;
 class DIQtModule {
 public:

@@ -31,6 +31,9 @@ public:
 
     bool testIncompleteMethods(QObject* node, const QList<QPair<DIQtType, QMetaMethod>>& methods);
     bool testIncompleteProperties(QObject* node, const QList<QPair<DIQtType, QMetaProperty>>& properties);
+
+    static QObject* objectParent(QObject* object);
+    static QObject* objectRoot(QObject* object);
 };
 
 #endif // DIQTMODULE_P_H

@@ -5,7 +5,6 @@
 #include "diqtmodule_p.h"
 
 #include "diqtinjector.h"
-#include <DIQt>
 
 static bool metaObjectInherits(const QMetaObject* o1, const QMetaObject* o2)
 {
@@ -14,66 +13,6 @@ static bool metaObjectInherits(const QMetaObject* o1, const QMetaObject* o2)
             return true;
     } while ((o1 = o1->superClass()));
     return false;
-}
-
-static QObject* objectParent(QObject* object)
-{
-    if (object->dynamicPropertyNames().contains("DIQt_parent")) {
-        QObject* parent = object->property("DIQt_parent").value<QObject*>();
-        return parent;
-
-    } else if (QGraphicsItem* item = dynamic_cast<QGraphicsItem*>(object)) {
-        QGraphicsItem* parent = item->parentItem();
-        while (parent && !dynamic_cast<QObject*>(parent)) {
-            parent = parent->parentItem();
-        }
-
-        if (!parent) {
-            return item->scene();
-        }
-
-        return dynamic_cast<QObject*>(parent);
-
-    } else if (QWidget* widget = dynamic_cast<QWidget*>(object)) {
-        return widget->parentWidget();
-
-    } else {
-        return object->parent();
-    }
-}
-
-static QObject* objectRoot(QObject* object)
-{
-    QObject* parent = objectParent(object);
-    while (parent) {
-        object = parent;
-        parent = objectParent(object);
-    }
-    return object;
-}
-
-void DIQt::inject(QObject* node)
-{
-    QObject* root = objectRoot(node);
-
-    if (!root->dynamicPropertyNames().contains("DIQt_module")) {
-        return;
-    }
-
-    DIQtModule* module = root->property("DIQt_module").value<DIQtModule*>();
-    module->d->injectRecursive(node);
-}
-
-void DIQt::project(QObject* source, QObject* destination)
-{
-    QObject* root = objectRoot(source);
-
-    if (!root->dynamicPropertyNames().contains("DIQt_module")) {
-        return;
-    }
-
-    DIQtModule* module = root->property("DIQt_module").value<DIQtModule*>();
-    module->bootstrap(destination);
 }
 
 DIQtModule::DIQtModule()
@@ -380,4 +319,40 @@ bool DIQtModulePrivate::testIncompleteProperties(QObject* node, const QList<QPai
 
     qWarning() << "Injection incomplete for" << node << ":" << incompleteProperties;
     return false;
+}
+
+QObject* DIQtModulePrivate::objectParent(QObject* object)
+{
+    if (object->dynamicPropertyNames().contains("DIQt_parent")) {
+        QObject* parent = object->property("DIQt_parent").value<QObject*>();
+        return parent;
+
+    } else if (QGraphicsItem* item = dynamic_cast<QGraphicsItem*>(object)) {
+        QGraphicsItem* parent = item->parentItem();
+        while (parent && !dynamic_cast<QObject*>(parent)) {
+            parent = parent->parentItem();
+        }
+
+        if (!parent) {
+            return item->scene();
+        }
+
+        return dynamic_cast<QObject*>(parent);
+
+    } else if (QWidget* widget = dynamic_cast<QWidget*>(object)) {
+        return widget->parentWidget();
+
+    } else {
+        return object->parent();
+    }
+}
+
+QObject* DIQtModulePrivate::objectRoot(QObject* object)
+{
+    QObject* parent = objectParent(object);
+    while (parent) {
+        object = parent;
+        parent = objectParent(object);
+    }
+    return object;
 }
