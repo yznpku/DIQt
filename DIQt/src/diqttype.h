@@ -11,9 +11,7 @@
 #include <QtQuick>
 #endif
 
-#include "DIQt_global.h"
-
-class DIQT_EXPORT DIQtType {
+class DIQtType {
     int id;
     const QMetaObject* metaObject;
 

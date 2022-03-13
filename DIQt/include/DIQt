@@ -2,9 +2,8 @@
  * Copyright (c) 2019 Zhining Yang. <yzn20080@gmail.com>
  */
 
-#include "DIQt_global.h"
-#include "diqtmodule.h"
-#include "diqttype.h"
+#include "../src/diqtmodule.h"
+#include "../src/diqttype.h"
 
 #ifndef Q_MOC_RUN
 #define DI_MODULE

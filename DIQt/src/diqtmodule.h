@@ -18,8 +18,6 @@
 #include "diqtprovideentry.h"
 #include "diqttype.h"
 
-#include "DIQt_global.h"
-
 class DIQtInjector;
 
 namespace DIQt {
@@ -27,7 +25,7 @@ void inject(QObject* node);
 void project(QObject* source, QObject* destination);
 }
 
-class DIQT_EXPORT DIQtModule {
+class DIQtModule {
 public:
     DIQtModule();
     virtual ~DIQtModule();
