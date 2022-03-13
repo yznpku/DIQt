@@ -136,12 +136,10 @@ void DIQtModule::provideWithDefaultConstructor(const DIQtType& provider, const D
         }
     }
 
-#if QT_VERSION_MAJOR > 4
     if (!entry.defaultConstructor.isValid()) {
         qWarning() << type.getMetaObject()->className() << "cannot be provided since it has no Q_INVOKABLE constructors.";
         return;
     }
-#endif
 
     d->providers.append(entry);
 }
@@ -303,11 +301,9 @@ QList<QPair<DIQtType, QMetaMethod>> DIQtModulePrivate::collectConsumerMethods(QO
         const QMetaMethod& method = metaObject->method(i);
         if (QString(method.tag()) == "DI_CONSUMER" && method.parameterTypes().size() == 1) {
             int typeId = QMetaType::type(method.parameterTypes()[0].constData());
-#if QT_VERSION_MAJOR > 4
             if (typeId == QMetaType::UnknownType) {
                 qWarning() << "Cannot inject method" << method.name() << "in" << node << ":" << method.parameterTypes()[0] << "is not registered";
             }
-#endif
             const DIQtType& type = DIQtType::fromId(typeId);
             consumerMethods.append(QPair<DIQtType, QMetaMethod>(type, method));
         }
@@ -325,11 +321,10 @@ QList<QPair<DIQtType, QMetaProperty>> DIQtModulePrivate::collectConsumerProperti
         const QMetaProperty& property = metaObject->property(i);
         if (QString(property.name()).startsWith("di_consumer_")) {
             int typeId = QMetaType::type(property.typeName());
-#if QT_VERSION_MAJOR > 4
             if (typeId == QMetaType::UnknownType) {
                 qWarning() << "Cannot inject property" << property.name() << "in" << node << ":" << property.typeName() << "is not registered";
             }
-#endif
+
             const DIQtType& type = DIQtType::fromId(typeId);
             consumerProperties.append(QPair<DIQtType, QMetaProperty>(type, property));
         }
@@ -345,11 +340,7 @@ QList<QMetaMethod> DIQtModulePrivate::collectInitMethods(QObject* node)
     for (int i = 0; i < metaObject->methodCount(); i++) {
         const QMetaMethod& method = metaObject->method(i);
         if (method.parameterTypes().size() == 0) {
-#if QT_VERSION_MAJOR < 5
-            QString methodName = method.signature();
-#else
             QString methodName = method.name();
-#endif
             if (QString(method.tag()) == "DI_ONINIT"
                 || QString(methodName) == "di_onInit"
                 || QString(methodName).startsWith("di_onInit_")) {
@@ -368,11 +359,7 @@ bool DIQtModulePrivate::testIncompleteMethods(QObject* node, const QList<QPair<D
 
     QList<QString> incompleteMethods;
     for (QList<QPair<DIQtType, QMetaMethod>>::const_iterator i = methods.constBegin(); i != methods.constEnd(); i++) {
-#if QT_VERSION_MAJOR < 5
-        QString methodName = i->second.signature();
-#else
         QString methodName = i->second.name();
-#endif
         incompleteMethods.append(methodName);
     }
 
