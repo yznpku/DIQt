@@ -1,0 +1,15 @@
+﻿/*
+ * Copyright (c) 2019 Zhining Yang. <yzn20080@gmail.com>
+ */
+
+#include "DIQt_global.h"
+#include "diqtmodule.h"
+#include "diqttype.h"
+
+#ifndef Q_MOC_RUN
+#define DI_MODULE
+#define DI_CONSUMER
+#define DI_ONINIT
+#define DI_PARENT
+#define DI_INJECTABLE
+#endif
