@@ -2,7 +2,7 @@
  * Copyright (c) 2019 Zhining Yang. <yzn20080@gmail.com>
  */
 
-#include "../src/diqtmodule.h"
+#include "../src/core/diqtmodule.h"
 
 #ifndef Q_MOC_RUN
 #define DI_MODULE
