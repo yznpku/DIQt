@@ -34,6 +34,7 @@ public:
 
     static QObject* objectParent(QObject* object);
     static QObject* objectRoot(QObject* object);
+    static DIQtModule* objectModule(QObject* object);
 };
 
 #endif // DIQTMODULE_P_H

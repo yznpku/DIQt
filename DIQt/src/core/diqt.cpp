@@ -2,26 +2,20 @@
 
 #include "diqtmodule_p.h"
 
-void DIQt::inject(QObject* node)
+void DIQt::inject(QObject* object)
 {
-    QObject* root = DIQtModulePrivate::objectRoot(node);
-
-    if (!root->dynamicPropertyNames().contains("DIQt_module")) {
+    DIQtModule* module = DIQtModulePrivate::objectModule(object);
+    if (!module) {
         return;
     }
-
-    DIQtModule* module = root->property("DIQt_module").value<DIQtModule*>();
-    module->d->injectRecursive(node);
+    module->d->injectRecursive(object);
 }
 
 void DIQt::project(QObject* source, QObject* destination)
 {
-    QObject* root = DIQtModulePrivate::objectRoot(source);
-
-    if (!root->dynamicPropertyNames().contains("DIQt_module")) {
+    DIQtModule* module = DIQtModulePrivate::objectModule(source);
+    if (!module) {
         return;
     }
-
-    DIQtModule* module = root->property("DIQt_module").value<DIQtModule*>();
     module->bootstrap(destination);
 }

@@ -356,3 +356,12 @@ QObject* DIQtModulePrivate::objectRoot(QObject* object)
     }
     return object;
 }
+
+DIQtModule* DIQtModulePrivate::objectModule(QObject* object)
+{
+    QObject* root = DIQtModulePrivate::objectRoot(object);
+    if (!root->dynamicPropertyNames().contains("DIQt_module")) {
+        return nullptr;
+    }
+    return root->property("DIQt_module").value<DIQtModule*>();
+}

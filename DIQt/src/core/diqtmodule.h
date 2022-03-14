@@ -59,7 +59,9 @@ private:
 
 private:
     DIQtModulePrivate* d;
+
     friend void DIQt::inject(QObject* node);
+    friend class DIQtProviderService;
 };
 
 Q_DECLARE_METATYPE(DIQtModule*)

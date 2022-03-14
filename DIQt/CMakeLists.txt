@@ -2,7 +2,7 @@
 set(TARGET_NAME DIQt)
 
 # target configurations
-file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS *.cpp *.h *.qrc)
+file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS *.cpp *.h *.qrc *.ui)
 add_library(${TARGET_NAME} SHARED ${SOURCE_FILES})
 
 # library linking
@@ -27,4 +27,8 @@ target_compile_definitions(${TARGET_NAME} PRIVATE
 target_include_directories(${TARGET_NAME} PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
     "$<INSTALL_INTERFACE:include>"
+)
+
+target_include_directories(${TARGET_NAME} PRIVATE
+    src
 )

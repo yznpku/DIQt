@@ -17,6 +17,7 @@ add_subdirectory(DIQt)
 if (${PROJECT_NAME}_BUILD_TESTS_AND_EXAMPLES)
     add_subdirectory(demo_BasicWidget)
     add_subdirectory(demo_BasicQml)
+    add_subdirectory(demo_Visualization)
     add_subdirectory(test_MultipleTrees)
 endif()
 

@@ -3,11 +3,5 @@
  */
 
 #include "../src/core/diqtmodule.h"
-
-#ifndef Q_MOC_RUN
-#define DI_MODULE
-#define DI_CONSUMER
-#define DI_ONINIT
-#define DI_PARENT
-#define DI_INJECTABLE
-#endif
+#include "../src/core/diqt.h"
+#include "../src/visualization/diqtvisualizer.h"
