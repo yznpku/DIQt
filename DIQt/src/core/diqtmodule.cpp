@@ -48,20 +48,20 @@ void DIQtModule::registerType(const DIQtType& type)
     d->registeredTypes.append(type);
 }
 
-void DIQtModule::provideWithReadyObject(const DIQtType& provider, const DIQtType& type, QObject* object)
+void DIQtModule::provideWithReadyObject(const DIQtType& scope, const DIQtType& type, QObject* object)
 {
     DIQtProvideEntry entry;
-    entry.provider = provider;
+    entry.scope = scope;
     entry.type = type;
     entry.configuration = DIQtProvideEntry::ReadyObjectProvider;
     entry.readyObject = object;
     d->providers.append(entry);
 }
 
-void DIQtModule::provideWithDefaultConstructor(const DIQtType& provider, const DIQtType& type)
+void DIQtModule::provideWithDefaultConstructor(const DIQtType& scope, const DIQtType& type)
 {
     DIQtProvideEntry entry;
-    entry.provider = provider;
+    entry.scope = scope;
     entry.type = type;
     entry.configuration = DIQtProvideEntry::DefaultConstructorProvider;
     entry.readyObject = 0;
@@ -179,7 +179,7 @@ void DIQtModulePrivate::createInjector(QObject* node)
 {
     QList<DIQtProvideEntry> nodeProviders;
     for (QList<DIQtProvideEntry>::const_iterator i = this->providers.constBegin(); i != this->providers.constEnd(); i++) {
-        const DIQtType& type = i->provider;
+        const DIQtType& type = i->scope;
         if (type.getMetaObject() && metaObjectInherits(type.getMetaObject(), node->metaObject())) {
             nodeProviders.append(*i);
         }
@@ -199,7 +199,7 @@ void DIQtModulePrivate::createRootInjector()
 
     QList<DIQtProvideEntry> rootProviders;
     for (QList<DIQtProvideEntry>::const_iterator i = this->providers.constBegin(); i != this->providers.constEnd(); i++) {
-        const DIQtType& type = i->provider;
+        const DIQtType& type = i->scope;
         if (!type.getMetaObject()) {
             rootProviders.append(*i);
         }

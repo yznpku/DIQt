@@ -46,10 +46,10 @@ public:
         this->provideWithReadyObject(DIQtType(), DIQtType::makeType<T>(), object);
     }
 
-    template <class TProvider, class T>
+    template <class TScope, class T>
     void provide()
     {
-        this->provideWithDefaultConstructor(DIQtType::makeType<TProvider>(), DIQtType::makeType<T>());
+        this->provideWithDefaultConstructor(DIQtType::makeType<TScope>(), DIQtType::makeType<T>());
     }
 
 private:

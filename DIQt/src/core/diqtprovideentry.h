@@ -9,10 +9,12 @@
 
 class DIQtProvideEntry {
 public:
-    enum ProviderConfiguration { ReadyObjectProvider,
-        DefaultConstructorProvider };
+    enum ProviderConfiguration {
+        ReadyObjectProvider,
+        DefaultConstructorProvider
+    };
 
-    DIQtType provider;
+    DIQtType scope;
     DIQtType type;
     ProviderConfiguration configuration;
 
