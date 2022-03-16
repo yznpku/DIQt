@@ -11,6 +11,9 @@ class DIQtProviderService : public QObject {
 
     DIQtProviderServicePrivate* d;
 
+signals:
+    void entriesChanged();
+
 public:
     Q_INVOKABLE DIQtProviderService(QObject* parent = nullptr);
     virtual ~DIQtProviderService();

@@ -25,6 +25,7 @@ void DIQtVisualizer::visualize(DIQtModule* module)
         return;
     }
 
+    d->providerService->setModule(module);
     this->show();
 }
 

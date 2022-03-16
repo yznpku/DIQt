@@ -18,6 +18,7 @@ public:
 
 public slots:
     DI_CONSUMER void setProviderService(DIQtProviderService* providerService);
+    void updateData();
 
 private:
     DIQtProviderService* providerService { nullptr };

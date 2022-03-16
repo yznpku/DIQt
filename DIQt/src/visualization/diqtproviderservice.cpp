@@ -15,7 +15,13 @@ DIQtProviderService::~DIQtProviderService()
 
 void DIQtProviderService::setModule(DIQtModule* module)
 {
+    if (d->module) {
+        disconnect(d->module->d, nullptr, this, nullptr);
+    }
+
     d->module = module;
+    connect(d->module->d, &DIQtModulePrivate::providersChanged, this, &DIQtProviderService::entriesChanged);
+    emit this->entriesChanged();
 }
 
 QList<DIQtProvideEntry> DIQtProviderService::getProvideEntries() const

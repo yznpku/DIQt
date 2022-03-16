@@ -56,6 +56,8 @@ void DIQtModule::provideWithReadyObject(const DIQtType& scope, const DIQtType& t
     entry.configuration = DIQtProvideEntry::ReadyObjectProvider;
     entry.readyObject = object;
     d->providers.append(entry);
+
+    emit d->providersChanged();
 }
 
 void DIQtModule::provideWithDefaultConstructor(const DIQtType& scope, const DIQtType& type)
@@ -81,11 +83,18 @@ void DIQtModule::provideWithDefaultConstructor(const DIQtType& scope, const DIQt
     }
 
     d->providers.append(entry);
+
+    emit d->providersChanged();
 }
 
 DIQtModulePrivate::DIQtModulePrivate(DIQtModule* q)
+    : QObject {}
 {
     this->q = q;
+}
+
+DIQtModulePrivate::~DIQtModulePrivate()
+{
 }
 
 void DIQtModulePrivate::injectAll(QObject* node)

@@ -7,7 +7,9 @@
 #include "diqtprovideentry.h"
 #include "diqttype.h"
 
-class DIQtModulePrivate {
+class DIQtModulePrivate : public QObject {
+    Q_OBJECT
+
 public:
     DIQtModule* q;
     QList<DIQtType> registeredTypes;
@@ -16,6 +18,7 @@ public:
 
 public:
     DIQtModulePrivate(DIQtModule* q);
+    virtual ~DIQtModulePrivate();
 
     void injectAll(QObject* node);
     void injectRecursive(QObject* root);
@@ -35,6 +38,9 @@ public:
     static QObject* objectParent(QObject* object);
     static QObject* objectRoot(QObject* object);
     static DIQtModule* objectModule(QObject* object);
+
+signals:
+    void providersChanged();
 };
 
 #endif // DIQTMODULE_P_H
