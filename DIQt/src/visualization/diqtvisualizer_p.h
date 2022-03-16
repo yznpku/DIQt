@@ -4,6 +4,7 @@
 #include "diqtvisualizer.h"
 
 #include "core/diqtmodule_p.h"
+#include "diqtprovidermodel.h"
 #include "diqtproviderservice.h"
 
 namespace Ui {
@@ -18,6 +19,8 @@ public:
     Ui::DIQtVisualizer* ui;
     DIQtModule visualizerModule;
     DIQtProviderService* providerService { nullptr };
+
+    DIQtProviderModel providerModel { this };
 
 public:
     DIQtVisualizerPrivate(DIQtVisualizer* q);

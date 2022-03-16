@@ -35,6 +35,8 @@ DIQtVisualizerPrivate::DIQtVisualizerPrivate(DIQtVisualizer* q)
     this->q = q;
     this->ui->setupUi(q);
 
+    this->ui->providerView->setModel(&this->providerModel);
+
     this->visualizerModule.provideAtRoot<DIQtProviderService>();
     this->visualizerModule.bootstrap(q);
 }
