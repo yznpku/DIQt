@@ -2,64 +2,20 @@
 
 struct DIQtProviderModel::Private {
     QList<DIQtProvideEntry> cachedData;
+
+    QHash<DIQtType, QStandardItem*> itemOfScope;
 };
 
 DIQtProviderModel::DIQtProviderModel(QObject* parent)
-    : QAbstractTableModel { parent }
+    : QStandardItemModel { parent }
     , d { new Private }
 {
+    this->setHorizontalHeaderLabels({ "Scope / Object Class", "Object Source" });
 }
 
 DIQtProviderModel::~DIQtProviderModel()
 {
     delete d;
-}
-
-int DIQtProviderModel::rowCount(const QModelIndex& parent) const
-{
-    return d->cachedData.size();
-}
-
-int DIQtProviderModel::columnCount(const QModelIndex& parent) const
-{
-    return 3;
-}
-
-QVariant DIQtProviderModel::data(const QModelIndex& index, int role) const
-{
-    if (role == Qt::DisplayRole) {
-        const DIQtProvideEntry& entry = d->cachedData[index.row()];
-        switch (index.column()) {
-        case 0: {
-            const QMetaObject* scope = entry.scope.getMetaObject();
-            return scope ? scope->className() : "Root";
-        }
-        case 1: {
-            const QMetaObject* objectClass = entry.type.getMetaObject();
-            return objectClass ? objectClass->className() : "null";
-        }
-        case 2:
-            return entry.configuration;
-        default:;
-        }
-    }
-    return {};
-}
-
-QVariant DIQtProviderModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
-        switch (section) {
-        case 0:
-            return "Scope";
-        case 1:
-            return "Object Class";
-        case 2:
-            return "Object Source";
-        default:;
-        }
-    }
-    return QAbstractTableModel::headerData(section, orientation, role);
 }
 
 void DIQtProviderModel::setProviderService(DIQtProviderService* providerService)
@@ -71,7 +27,40 @@ void DIQtProviderModel::setProviderService(DIQtProviderService* providerService)
 
 void DIQtProviderModel::updateData()
 {
-    beginResetModel();
     d->cachedData = this->providerService->getProvideEntries();
-    endResetModel();
+
+    // clear scopes
+    this->removeRows(0, this->rowCount());
+    d->itemOfScope.clear();
+
+    // add rows
+    for (const auto& entry : qAsConst(d->cachedData)) {
+        // find scope item
+        QStandardItem* scopeItem;
+        if (d->itemOfScope.contains(entry.scope)) {
+            scopeItem = d->itemOfScope[entry.scope];
+        } else {
+            // create new scope item
+            const QMetaObject* scope = entry.scope.getMetaObject();
+            scopeItem = new QStandardItem { scope ? scope->className() : "Root" };
+            this->appendRow(scopeItem);
+        }
+
+        const QMetaObject* objectClass = entry.type.getMetaObject();
+        auto objectClassItem = new QStandardItem { objectClass ? objectClass->className() : "null" };
+
+        QString objectSource;
+        switch (entry.configuration) {
+        case DIQtProvideEntry::ReadyObjectProvider:
+            objectSource = "Ready Object";
+            break;
+        case DIQtProvideEntry::DefaultConstructorProvider:
+            objectSource = "Default Constructor";
+            break;
+        default:;
+        }
+        auto objectSourceItem = new QStandardItem { objectSource };
+
+        scopeItem->appendRow({ objectClassItem, objectSourceItem });
+    }
 }

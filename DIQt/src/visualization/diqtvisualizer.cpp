@@ -36,10 +36,13 @@ DIQtVisualizerPrivate::DIQtVisualizerPrivate(DIQtVisualizer* q)
     this->q = q;
     this->ui->setupUi(q);
 
+    this->ui->providerView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     this->ui->providerView->setModel(&this->providerModel);
 
     this->visualizerModule.provideAtRoot<DIQtProviderService>();
     this->visualizerModule.bootstrap(q);
+
+    this->ui->providerView->setColumnWidth(0, 220);
 }
 
 DIQtVisualizerPrivate::~DIQtVisualizerPrivate()
